@@ -1,0 +1,147 @@
+@import url("//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css");
+
+body {
+  width:100%;
+  height: 100%;
+  padding: 0px;
+  margin: 0px;
+}
+
+.me {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  background-color: #fefefe;
+  padding: 0px;
+  margin: 0px;
+  overflow: hidden;
+}
+
+.me-toolbar {
+  background-color: #333333;
+  height: 40px;
+  width: 100%;
+  margin: 0px;
+  display: flex;
+}
+
+.me-toolbar-banner {
+  float: left;
+  padding: 10px;
+  display: flex;  
+}
+
+.me-toolbar-banner-label {
+    color: #fefefe;
+    font-family: tahoma;
+    font-size: 18px;
+    align-self: center;
+}
+
+.me-toolbar-tools {
+  float: right;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+
+.me-gmi {
+  
+  cursor: pointer;
+  margin-right: 15px;
+  align-items: center;
+  display: flex;
+  margin-left: 30px;
+}
+.me-gmi:hover {
+  color: #f8cb61;
+  text-decoration: underline;
+}
+
+.me-gmi-text {
+  color: #fefefe;
+  font-family: tahoma;
+  font-size: 18px;
+}
+
+.me-gmi-icon {
+  color: #fefefe;
+  font-size: 22px;
+  margin-top: -6px;
+}
+
+.me-body {
+  background-color: #fefefe;
+  position: absolute;
+  top: 40px;
+  bottom: 21px;
+  width: 100%;
+  margin: 0px;
+}
+
+.me-footer {
+  background-color: #333333;
+  position: absolute;
+  display: flex;
+  bottom: 0px;
+  height: 20px;
+  width: 100%;
+  margin: 0px;
+}
+
+.me-footer-label {
+    color: #fefefe;
+    font-family: tahoma;
+    font-size: 14px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.me-body-toolbar {
+  background-color: #8f9ddb;
+  height: 40px;
+  width: 100%;
+  margin: 0px;
+  display: flex;
+}
+
+.me-macro-editor {
+  height: calc(100% - 40px);
+  width: 100%;
+}
+
+.me-toolbox {
+  display:inline-flex;
+  width: 33%;
+  height: 100%;
+  background-color: #fefefe;
+}
+
+
+.ace {
+    display: block;
+    position: relative;
+    height: 100%;
+    width: calc(67%);
+    float: right;
+}
+
+.ace-header {
+  width: 100%;
+  height: 40px;
+}
+
+.ace-body {
+  width: 100%;
+  height: calc(100% - 40px);
+}
+
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

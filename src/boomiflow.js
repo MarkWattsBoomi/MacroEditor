@@ -1,0 +1,1 @@
+ace.define("ace/snippets/boomiflow",["require","exports","module"],function(e,t,n){"use strict";t.snippetText='# Some useful Boomi Flow entities\n state',t.scope="javascript"})
