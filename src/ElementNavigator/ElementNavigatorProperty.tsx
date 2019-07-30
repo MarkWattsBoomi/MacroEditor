@@ -44,6 +44,11 @@ export class ElementNavigatorProperty extends React.Component<any, any> {
             
         }
 
+        const buttons = [];
+        if(this.props.field) {
+            buttons.push(<ElementNavigatorActionButton action="getter" field={this.props.field} element={prop} parent={this} root={this.props.root}/>);
+            buttons.push(<ElementNavigatorActionButton action="setter" field={this.props.field} element={prop} parent={this} root={this.props.root}/>);
+        }
         return(
             <div className="enp">
                 <div className="enp-expander">
@@ -56,8 +61,7 @@ export class ElementNavigatorProperty extends React.Component<any, any> {
                             {prop.developerName}
                         </div>
                         <div className="en-button-bar">
-                            <ElementNavigatorActionButton action="getter" field={this.props.field} element={prop} parent={this} root={this.props.root}/>
-                            <ElementNavigatorActionButton action="setter" field={this.props.field} element={prop} parent={this} root={this.props.root}/>
+                            {buttons}
                         </div>
                     </div>
                     <div className="enf-content-bottom">

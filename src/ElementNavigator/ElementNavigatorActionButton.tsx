@@ -15,19 +15,24 @@ export class ElementNavigatorActionButton extends React.Component<any, any> {
         let title: string = "";
         switch(this.props.action) {
             case "getter":
-                    buttonClass += "import";
-                    title = "Copy getter to clipboard";
+                buttonClass += "import";
+                title = "Copy getter to clipboard";
                 break;
             
             case "setter":
-                    buttonClass += "export";
-                    title = "Copy setter to clipboard";
-                    break;
+                buttonClass += "export";
+                title = "Copy setter to clipboard";
+                break;
 
             case "id": 
-                    buttonClass += "info-sign";
-                    title = "Copy ID to clipboard";
-                    break;
+                buttonClass += "info-sign";
+                title = "Copy ID to clipboard";
+                break;
+            
+            case "new": 
+                buttonClass += "star";
+                title = "Create new instance of type";
+                break;
                    
         }
 
@@ -117,12 +122,15 @@ export class ElementNavigatorActionButton extends React.Component<any, any> {
                     break;
 
                 case "name":
-
                     clip = this.props.element.developerName;
                     break;
 
-        }       
+                case "new":
+                    clip=this.props.root.newFlowTypeInstance(this.props.element.id);
+                    break;
 
+        }       
+        console.log(clip);
         navigator.clipboard.writeText(clip);
 
     }

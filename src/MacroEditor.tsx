@@ -27,8 +27,8 @@ class MacroEditor extends React.Component<any, any> {
     flowValuesEndpoint: string = "/api/draw/1/element/value";
     flowMacrosEndpoint: string = "/api/draw/1/element/macro";
 
-    flowUID: string = "";
-    flowPWD: string = "";
+    flowUID: string = "mark_watts@dell.com";
+    flowPWD: string = "Summer18!!";
     flowToken: string = "";
     flowTenants: {[key: string]: any} = {};
     flowTenant: tenant | undefined ;
@@ -96,11 +96,39 @@ class MacroEditor extends React.Component<any, any> {
         this.tenantSelected = this.tenantSelected.bind(this);
         this.closeDialog = this.closeDialog.bind(this);
 
-        this.macroEditorLoaded = this.macroEditorLoaded.bind(this);
+        this.newFlowTypeInstance = this.newFlowTypeInstance.bind(this);
 
-        //this.prepAutoComplete();
+        this.macroEditorLoaded = this.macroEditorLoaded.bind(this);
     }
 
+    //this creates a new type JSON from a type ID
+    newFlowTypeInstance(typeId: string) : string {
+        let result: string = "type not found";
+        if(this.flowTypes[typeId])
+        {
+            const type = JSON.parse(JSON.stringify(this.flowTypes[typeId]));
+
+            const value: any = {};
+            value.typeElementDeveloperName = type.developerName;
+            value.typeElementId=type.id;
+            value.properties = [];
+
+            if(type.properties) {
+                type.properties.forEach((prop: any) => {
+                    const property : any = {};
+                    property.contentFormat = prop.contentFormat;
+                    property.contentType = prop.contentType;
+                    property.developerName = prop.developerName;
+                    value.properties.push(property);
+                });
+            }
+
+            result=JSON.stringify(value,null,"\t");
+        }
+        
+
+        return result;
+    }
 
     async connect() {
         if (await this._connect() === true) {
