@@ -27,8 +27,8 @@ class MacroEditor extends React.Component<any, any> {
     flowValuesEndpoint: string = "/api/draw/1/element/value";
     flowMacrosEndpoint: string = "/api/draw/1/element/macro";
 
-    flowUID: string = "mark_watts@dell.com";
-    flowPWD: string = "Summer18!!";
+    flowUID: string = "";
+    flowPWD: string = "";
     flowToken: string = "";
     flowTenants: {[key: string]: any} = {};
     flowTenant: tenant | undefined ;
