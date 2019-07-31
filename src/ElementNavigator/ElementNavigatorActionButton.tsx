@@ -28,6 +28,11 @@ export class ElementNavigatorActionButton extends React.Component<any, any> {
                 buttonClass += "info-sign";
                 title = "Copy ID to clipboard";
                 break;
+
+            case "name": 
+                buttonClass += "sd-video";
+                title = "Copy developerName to clipboard";
+                break;
             
             case "new": 
                 buttonClass += "star";

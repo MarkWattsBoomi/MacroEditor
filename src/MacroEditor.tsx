@@ -2,18 +2,9 @@ import React from 'react';
 import { GlobalMenuItem, eGlobalMenuItemType } from './GlobalMenuItem';
 import { tenant, macro } from './JSONClasses';
 import ModalDialog, { modalDialogButton } from './ModalDialog';
-import ace,  { Editor } from 'brace';
-import AceEditor from "react-ace";
-import 'brace/mode/javascript';
-import "brace/snippets/javascript";
-import "brace/ext/language_tools";
-import 'brace/theme/monokai';
-import ExpressionSuggester, { suggestion } from './ExpressionSuggester';
 import { ElementNavigator } from './ElementNavigator/ElementNavigator';
+import { ACEContainer } from './ACEContainer';
 
-
-
-//declare const ace: any;
 
 class MacroEditor extends React.Component<any, any> {
     context: any;
@@ -46,44 +37,6 @@ class MacroEditor extends React.Component<any, any> {
     dialogButtons: Array<modalDialogButton> = [];
     dialogContent: any;
 
-    flowAutoComplete = {
-        // eslint-disable-next-line
-        identifierRegexps: [/[a-zA-Z_0-9\.\$\-\u00A2-\uFFFF]/],
-        getCompletions: function (editor: any, session: any, caretPosition2d: any, prefix: any, callback: any) {
-          const suggestions: Array<suggestion> = ExpressionSuggester.suggestionsFor(prefix, caretPosition2d);
-          callback(null, suggestions.map((s : suggestion) => {
-            //unfortunately Ace treats `#` as special case, we have to remove `#` from suggestions or it will be duplicated
-            //maybe it depends on language mode?
-    
-            return {
-                caption: s.caption,
-                value: s.method, 
-                score: 1, 
-                meta: s.returnType, 
-                description: s.description, 
-                parameters: s.parameters, 
-                returnType: s.returnType
-            };
-          }))
-        }
-        /*,
-        getDocTooltip: (item: any) => {
-            if (item.description || item.parameters.length > 0) {
-                const paramsSignature = item.parameters.map((p : any) => {
-                    ProcessUtils.humanReadableType(p.refClazz) + " " + p.name).join(", ")
-                const javaStyleSignature = `${item.returnType} ${item.name}(${paramsSignature})`
-                item.docHTML = ReactDOMServer.renderToStaticMarkup((
-                <div className="function-docs">
-                    <b>{javaStyleSignature}</b>
-                    <hr/>
-                    <p>{item.description}</p>
-                </div>
-                ));
-            }
-        }
-        */
-    }
-
     constructor(props: any) {
         super(props);
         this._connect = this._connect.bind(this);
@@ -92,13 +45,13 @@ class MacroEditor extends React.Component<any, any> {
         this._loadTenant = this._loadTenant.bind(this);
         this._loadTypes = this._loadTypes.bind(this);
 
+        this.login = this.login.bind(this);
         this.connect = this.connect.bind(this);
         this.tenantSelected = this.tenantSelected.bind(this);
         this.closeDialog = this.closeDialog.bind(this);
 
         this.newFlowTypeInstance = this.newFlowTypeInstance.bind(this);
 
-        this.macroEditorLoaded = this.macroEditorLoaded.bind(this);
     }
 
     //this creates a new type JSON from a type ID
@@ -119,6 +72,20 @@ class MacroEditor extends React.Component<any, any> {
                     property.contentFormat = prop.contentFormat;
                     property.contentType = prop.contentType;
                     property.developerName = prop.developerName;
+                    switch(property.contentType) {
+                        case "ContentList": 
+                            property.contentValue = null;
+                            property.objectData = [];
+                            break;
+                        case "ContentObject":
+                            property.contentValue = null;
+                            property.objectData = null;
+                            break;
+                        default:
+                            property.contentValue = null;
+                            property.objectData = null;
+                    }
+                    
                     value.properties.push(property);
                 });
             }
@@ -131,10 +98,47 @@ class MacroEditor extends React.Component<any, any> {
     }
 
     async connect() {
+        this.showDialog = true;
+        this.dialogTitle = "Login to Flow";
+        this.dialogButtons = [new modalDialogButton("Login", this.login),new modalDialogButton("Cancel",this.closeDialog)];
+        this.dialogContent = (
+            <div>
+                <div className="modal-dialog-input-row">
+                    <span className="modal-dialog-input-label">Username</span>
+                    <input
+                        id="userid"
+                        className="modal-dialog-input"
+                        type="text"
+                        defaultValue={this.flowUID}
+                        onChange={(e) => {this.flowUID = e.target.value}}
+                    />
+                </div> 
+                <div className="modal-dialog-input-row">
+                    <span className="modal-dialog-input-label">Password</span>
+                    <input
+                        id="password"
+                        className="modal-dialog-input"
+                        type="password"
+                        defaultValue={this.flowPWD}
+                        onChange={(e) => {this.flowPWD = e.target.value}}
+                    />
+                </div>  
+            </div>
+        );
+        this.forceUpdate()
+    }
+
+    async login() {
         if (await this._connect() === true) {
+            this.closeDialog();
+            await this.forceUpdate();
             if(await this._getTenants()) {
                 //in and list got
             }
+        }
+        else
+        {
+            this.closeDialog();
         }
 
         this.forceUpdate();
@@ -165,46 +169,7 @@ class MacroEditor extends React.Component<any, any> {
         this.forceUpdate();
     }
 
-    async macroContentChange(newValue: any) {
-        //console.log(newValue);
-    }
-
-    macroEditorLoaded(e: Editor) {
-  
-        //const customMode = new FlowCustomRules();
-        //e.getSession().setMode(customMode);
-        //e.getSession().com
-
-        
-
-        
-        const snippetManager : any  = ace.acequire('ace/snippets').snippetManager;
-        let langTools : any = ace.acequire('ace/ext/language_tools');
-
-        
-        const customSnippetText = [
-        "snippet log",
-        // eslint-disable-next-line
-        "	console.log('${1:}');",
-        "",
-        "snippet bool",
-        // eslint-disable-next-line
-        "	var bool = state.getBooleanValue('${1:}');",
-        ""
-        ].join('\n');
-
-        const customSnippet = snippetManager.parseSnippetFile(customSnippetText, 'javascript');
-
-        snippetManager.register(customSnippet, 'javascript');
-
-        langTools.addCompleter(this.flowAutoComplete);
-        
-        //langTools.completers.push(this.flowAutoComplete);
-        
-        console.log("loaded");
-
-        
-    }
+    
 
     async _connect() : Promise<boolean> {
 
@@ -455,7 +420,7 @@ class MacroEditor extends React.Component<any, any> {
                 <GlobalMenuItem 
                     key="Select Tenant"
                     type={eGlobalMenuItemType.combo}
-                    suppressBlank={this.flowTenant}
+                    suppressBlank={(this.flowTenant !== undefined) && (this.flowTenant.id.length > 0)}
                     label="Select Tenant"
                     tooltip="Select a Tenant"
                     data={this.flowTenants}
@@ -492,25 +457,7 @@ class MacroEditor extends React.Component<any, any> {
         //if there's a tenant loaded then show body 
         let bodyToolbar: any;
         let editor: any;
-        /*
-        if(this.flowTenant) {
-            bodyToolbar = (
-                <div 
-                    className="me-body-toolbar"
-                >
-                    <GlobalMenuItem 
-                        key="macros"
-                        type={eGlobalMenuItemType.combo}
-                        suppressBlank={(this.flowMacro !== undefined) && (this.flowMacro.id.length > 0)}
-                        label="Select Macro"
-                        tooltip="Select a Macro"
-                        data={this.flowMacros}
-                        onChange={(macroId: string) => {this.macroSelected(macroId)}}
-                    />
-                </div>
-            );
-        }
-*/
+        
         if(this.flowTenant) {
 
             bodyToolbar = (
@@ -542,28 +489,7 @@ class MacroEditor extends React.Component<any, any> {
                         <div className="ace-header">
                             {bodyToolbar}
                         </div>
-                        <div className="ace-body">
-                            <AceEditor
-                                width="100%"
-                                height="100%"
-                                className="ace"
-                                mode="javascript"
-                                theme="monokai"
-                                onChange={(newValue: any) => (this.macroContentChange(newValue))}
-                                onLoad={(e: any) => {this.macroEditorLoaded(e)}}
-                                showPrintMargin={false}
-                                name="UNIQUE_ID_OF_DIV"
-                                editorProps={{ $blockScrolling: true }}
-                                value = {this.flowMacro? (this.flowMacro as macro).code : ""}
-                                setOptions={{
-                                    enableBasicAutocompletion: true,
-                                    enableLiveAutocompletion: true,
-                                    enableSnippets: true,
-                                    showLineNumbers: true,
-                                    tabSize: 2,
-                                    }}
-                            />
-                        </div>
+                        <ACEContainer flowMacro={this.flowMacro} parent={this} />
                     </div>
                 </div>
                 

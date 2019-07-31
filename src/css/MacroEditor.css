@@ -103,10 +103,11 @@ body {
   width: 100%;
   margin: 0px;
   display: flex;
+  border-left: 1px solid black;
 }
 
 .me-macro-editor {
-  height: calc(100% - 40px);
+  height: calc(100%);
   width: 100%;
 }
 

@@ -40,7 +40,7 @@
 
 .en-tab {
     display: inline-block;
-    background-color: #cfd4fb;
+    background-color:  #9aa1db;
     padding-left: 10px;
     padding-right: 10px;
     border-radius: 10px 10px 0 0;
@@ -48,12 +48,12 @@
     cursor: pointer;
 }
 
-.en-tab:hover {
-    background-color: #9aa0cf;
+.en-tab:hover:not(.en-tab-selected) {
+    background-color: #bfc2d8;
 }
 
 .en-tab-selected {
-    background-color: #9aa1db;
+    background-color: #cfd4fb;
 }
 
 

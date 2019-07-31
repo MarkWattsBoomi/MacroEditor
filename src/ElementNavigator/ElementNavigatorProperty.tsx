@@ -48,6 +48,8 @@ export class ElementNavigatorProperty extends React.Component<any, any> {
         if(this.props.field) {
             buttons.push(<ElementNavigatorActionButton action="getter" field={this.props.field} element={prop} parent={this} root={this.props.root}/>);
             buttons.push(<ElementNavigatorActionButton action="setter" field={this.props.field} element={prop} parent={this} root={this.props.root}/>);
+            buttons.push(<ElementNavigatorActionButton action="name" element={this.props.field} parent={this} root={this.props.root}/>);
+            buttons.push(<ElementNavigatorActionButton action="id" element={this.props.field} parent={this} root={this.props.root}/>);
         }
         return(
             <div className="enp">
