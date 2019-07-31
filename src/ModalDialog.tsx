@@ -74,10 +74,15 @@ export class DragEvent
 export class modalDialogButton {
   label: string;
   handler: any;
+  tooltip: string;
+  key: string;
 
-  constructor(label: string, handler: any) {
+
+  constructor(key: string, label: string, tooltip: string, handler: any) {
     this.label = label;
     this.handler = handler;
+    this.key=key;
+    this.tooltip=tooltip;
   }
 }
 // Declaration of the component as React Class Component
@@ -170,8 +175,9 @@ class ModalDialog extends React.Component<any, any> {
     for(const button of this.props.buttons) {
       buttons.push(
       <button 
+        key={button.key}
         className="modal-dialog-button-bar-button" 
-        title="Cancel" 
+        title={button.tooltip} 
         onMouseDown={(e) => {e.stopPropagation();button.handler()}}
       >
         {button.label}

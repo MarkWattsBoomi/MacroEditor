@@ -59,14 +59,16 @@
 
 .en-body {
     width: 100%;
-    height: calc(100% - 40px);
+    height: calc(100% - 61px);
     padding: 10px;
     overflow-y: scroll;
+    overflow-x: auto;
 }
 
 .enf {
     display: flex;
     margin-bottom: 5px;
+    white-space: nowrap;
 }
 
 .enf-expander {

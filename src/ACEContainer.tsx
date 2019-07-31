@@ -76,7 +76,11 @@ export class ACEContainer extends React.Component<any, any> {
         "",
         "snippet bool",
         // eslint-disable-next-line
-        "	var bool = state.getBooleanValue('${1:}');",
+        "	var bool = state.getBooleanValue('{![${1:}]}');",
+        "",
+        "snippet while",
+        // eslint-disable-next-line
+        "	while(value1 === value2) {\n\t   doSomething();\n\t}",
         ""
         ].join('\n');
 

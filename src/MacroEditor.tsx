@@ -100,7 +100,7 @@ class MacroEditor extends React.Component<any, any> {
     async connect() {
         this.showDialog = true;
         this.dialogTitle = "Login to Flow";
-        this.dialogButtons = [new modalDialogButton("Login", this.login),new modalDialogButton("Cancel",this.closeDialog)];
+        this.dialogButtons = [new modalDialogButton("login","Login","Connect to Flow", this.login),new modalDialogButton("cancel","Cancel","Cancel login",this.closeDialog)];
         this.dialogContent = (
             <div>
                 <div className="modal-dialog-input-row">
