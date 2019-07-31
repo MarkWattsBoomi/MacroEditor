@@ -42,8 +42,8 @@ export class ElementNavigatorType extends React.Component<any, any> {
         }
 
         const buttons = [];
+        buttons.push(<ElementNavigatorActionButton key="new" action="new" field={this.props.field} element={this.props.type} parent={this} root={this.props.root}/>);
         if(!this.props.field) {
-            buttons.push(<ElementNavigatorActionButton key="new" action="new" field={this.props.field} element={this.props.type} parent={this} root={this.props.root}/>);
             buttons.push(<ElementNavigatorActionButton key="name" action="name" field={this.props.field} element={this.props.type} parent={this} root={this.props.root}/>);
             buttons.push(<ElementNavigatorActionButton key="id" action="id" field={this.props.field} element={this.props.type} parent={this} root={this.props.root}/>);
         }

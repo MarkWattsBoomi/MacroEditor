@@ -19,6 +19,15 @@ export class ElementNavigatorField extends React.Component<any, any> {
 
         let expanderClass = "enf-expander-icon glyphicon glyphicon-";
 
+        const buttons : any = [];
+        buttons.push(<ElementNavigatorActionButton key="getter" action="getter" element={this.props.field} parent={this} root={this.props.root}/>);
+        buttons.push(<ElementNavigatorActionButton key="setter" action="setter" element={this.props.field} parent={this} root={this.props.root}/>);
+        if(this.props.field.contentType === "ContentList") {
+            buttons.push(<ElementNavigatorActionButton key="append" action="append" element={this.props.field} parent={this} root={this.props.root}/>); 
+        }
+        buttons.push(<ElementNavigatorActionButton key="name" action="name" element={this.props.field} parent={this} root={this.props.root}/>);
+        buttons.push(<ElementNavigatorActionButton key="id" action="id" element={this.props.field} parent={this} root={this.props.root}/>);
+
         if(this.expanded === true) {
             expanderClass += "minus";
             content = (
@@ -28,10 +37,7 @@ export class ElementNavigatorField extends React.Component<any, any> {
                             {this.props.field.developerName}
                         </div>
                         <div className="en-button-bar">
-                            <ElementNavigatorActionButton key="getter" action="getter" element={this.props.field} parent={this} root={this.props.root}/>
-                            <ElementNavigatorActionButton key="setter" action="setter" element={this.props.field} parent={this} root={this.props.root}/>
-                            <ElementNavigatorActionButton key="name" action="name" element={this.props.field} parent={this} root={this.props.root}/>
-                            <ElementNavigatorActionButton key="id" action="id" element={this.props.field} parent={this} root={this.props.root}/>
+                            {buttons}
                         </div>
                     </div>
                     <div className="enf-content-bottom">
@@ -52,10 +58,7 @@ export class ElementNavigatorField extends React.Component<any, any> {
                             {this.props.field.developerName}
                         </div>
                         <div className="en-button-bar">
-                            <ElementNavigatorActionButton action="getter" element={this.props.field} parent={this} root={this.props.root}/>
-                            <ElementNavigatorActionButton action="setter" element={this.props.field} parent={this} root={this.props.root}/>
-                            <ElementNavigatorActionButton key="name" action="name" element={this.props.field} parent={this} root={this.props.root}/>
-                            <ElementNavigatorActionButton action="id" element={this.props.field} parent={this} root={this.props.root}/>
+                            {buttons}
                         </div>
                     </div>
                 </div>

@@ -25,7 +25,7 @@ export class ElementNavigatorFieldDetail extends React.Component<any, any> {
                 break;
 
             case "ContentList":
-
+                    rows.push(<ElementNavigatorType key={"contentObject"} field={this.props.field} type={type} root={this.props.root}/>);
                 break;
 
             default:

@@ -38,6 +38,11 @@ export class ElementNavigatorActionButton extends React.Component<any, any> {
                 buttonClass += "star";
                 title = "Create new instance of type";
                 break;
+
+            case "append": 
+                buttonClass += "step-backward";
+                title = "Coppy appender to clipboard";
+                break;
                    
         }
 
@@ -53,6 +58,7 @@ export class ElementNavigatorActionButton extends React.Component<any, any> {
         let parent: string="";
         let field:string="";
 
+        let type: string="";
         let clip: string="";
 
 
@@ -72,53 +78,57 @@ export class ElementNavigatorActionButton extends React.Component<any, any> {
                 args="('{!" + parent + field + "}', newValue)";
                 break;
 
+            case "append":
+                    direction="get";
+                    args="('{!" + parent + field + "}', newValue)";
+                    break;
+
         }
 
         switch(this.props.action) {
             case "getter": 
             case "setter":
-
                     switch(this.props.element.contentType) {
                         case "ContentList":
-                            clip = "Array";
-                            break;
+                                type = "Array";
+                                break;
                         
                         case "ContentContent":
-                                clip = "ContentValue";
+                                type = "ContentValue";
                                 break;
             
                         case "ContentString":
-                            clip = "StringValue";
-                            break;
+                                type = "StringValue";
+                                break;
             
                         case "ContentNumber":
-                            clip = "NumberValue";
-                            break;
+                                type = "NumberValue";
+                                break;
             
                         case "ContentBoolean":
-                                clip = "BooleanValue";
+                                type = "BooleanValue";
                                 break;
             
                         case "ContentDateTime":
-                                clip = "DateTimeValue";
+                                type = "DateTimeValue";
                                 break;
             
                         case "ContentPassword":
-                                clip = "PasswordValue";
+                                type = "PasswordValue";
                                 break;
             
                         case "ContentObject":
-                                clip = "Object";
+                                type = "Object";
                                 break;
                     
                         default:
-                                clip="Value";
+                                type="Value";
                                 break;
             
             
                     }
             
-                    clip = "state." + direction + clip + args + ";";
+                    clip = "state." + direction + type + args + ";";
 
                     break;
                 
@@ -133,6 +143,11 @@ export class ElementNavigatorActionButton extends React.Component<any, any> {
                 case "new":
                     clip=this.props.root.newFlowTypeInstance(this.props.element.id);
                     break;
+
+                case "append":
+                        type = "Array";
+                        clip = "state." + direction + type + args + ".push(newVal);";
+                        break;
 
         }       
         console.log(clip);
