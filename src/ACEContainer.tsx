@@ -60,7 +60,7 @@ export class ACEContainer extends React.Component<any, any> {
     }
 
     async macroContentChange(newValue: any) {
-        //console.log(newValue);
+        this.props.parent.macroTextChanged(newValue);
     }
 
     macroEditorLoaded(e: Editor) {
@@ -110,7 +110,7 @@ export class ACEContainer extends React.Component<any, any> {
                             showPrintMargin={false}
                             name="UNIQUE_ID_OF_DIV"
                             editorProps={{ $blockScrolling: true }}
-                            value = {this.props.flowMacro? (this.props.flowMacro as macro).code : ""}
+                            value = {this.props.macroText? this.props.macroText : ""}
                             setOptions={{
                                 enableBasicAutocompletion: true,
                                 enableLiveAutocompletion: true,

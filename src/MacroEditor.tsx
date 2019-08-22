@@ -4,19 +4,11 @@ import { tenant, macro } from './JSONClasses';
 import ModalDialog, { modalDialogButton } from './ModalDialog';
 import { ElementNavigator } from './ElementNavigator/ElementNavigator';
 import { ACEContainer } from './ACEContainer';
+import { FlowCalls, callResult } from './FlowCalls';
 
 
 class MacroEditor extends React.Component<any, any> {
     context: any;
-
-    connected: boolean = false;
-    flowBaseURL: string = "https://flow.manywho.com";
-    flowAuthEndpoint: string = "/api/draw/1/authentication";
-    flowGetTenantsEndpoint: string = "/api/admin/1/users/me";
-    flowSwitchTenantEndpoint: string = "/api/draw/1/authentication";
-    flowTypesEndpoint: string = "/api/draw/1/element/type";
-    flowValuesEndpoint: string = "/api/draw/1/element/value";
-    flowMacrosEndpoint: string = "/api/draw/1/element/macro";
 
     flowUID: string = "";
     flowPWD: string = "";
@@ -37,19 +29,19 @@ class MacroEditor extends React.Component<any, any> {
     dialogButtons: Array<modalDialogButton> = [];
     dialogContent: any;
 
+    macroText: string = "";
+    macroModified: boolean = false;
+
     constructor(props: any) {
         super(props);
-        this._connect = this._connect.bind(this);
-        this._getTenants = this._getTenants.bind(this);
-        this._getBodyText = this._getBodyText.bind(this);
-        this._loadTenant = this._loadTenant.bind(this);
-        this._loadTypes = this._loadTypes.bind(this);
-
+        
         this.login = this.login.bind(this);
         this.connect = this.connect.bind(this);
         this.tenantSelected = this.tenantSelected.bind(this);
         this.closeDialog = this.closeDialog.bind(this);
-
+        this.macroTextChanged = this.macroTextChanged.bind(this);
+        this.saveMacro = this.saveMacro.bind(this);
+        this.saveMacroAs = this.saveMacroAs.bind(this);
         this.newFlowTypeInstance = this.newFlowTypeInstance.bind(this);
 
     }
@@ -129,11 +121,14 @@ class MacroEditor extends React.Component<any, any> {
     }
 
     async login() {
-        if (await this._connect() === true) {
+        const result = await FlowCalls._connect(this.flowUID, this.flowPWD);
+        if(result && result.result === true) {
+            this.flowToken = result.data;
             this.closeDialog();
             await this.forceUpdate();
-            if(await this._getTenants()) {
-                //in and list got
+            const tenants : any = await FlowCalls._getTenants(this.flowToken);
+            if(tenants.result === true) {
+                this.flowTenants = tenants.data;
             }
         }
         else
@@ -149,12 +144,17 @@ class MacroEditor extends React.Component<any, any> {
         this.flowMacro = undefined;
         await this.forceUpdate();
 
-
         if(tenantId && tenantId.length > 0)
         {
-            if (await this._selectTenant(tenantId) === true)
-            {
-                await this._loadTenant();
+            const result = await FlowCalls._selectTenant(this.flowToken, this.flowTenants[tenantId]);
+            if(result.result === true) {
+                const loadResult = await FlowCalls._loadTenant(this.flowToken,tenantId);
+                if(loadResult.result === true) {
+                    this.flowTypes = loadResult.data.types;
+                    this.flowValues = loadResult.data.values;
+                    this.flowMacros = loadResult.data.macros;
+                    this.flowTenant = this.flowTenants[tenantId];
+                }
             }
         }
         this.forceUpdate();
@@ -165,230 +165,53 @@ class MacroEditor extends React.Component<any, any> {
         {
             //draw macro
             this.flowMacro = this.flowMacros[macroId];
+            this.macroText = this.flowMacro.code;
+            this.macroModified = false;
         }
         this.forceUpdate();
     }
 
-    
-
-    async _connect() : Promise<boolean> {
-
-        let body = {
-                "password": this.flowPWD,
-                "username": this.flowUID
-        };
-        
-        let success: boolean = true;
-
-        await fetch(this.flowBaseURL + this.flowAuthEndpoint, { 
-            method: "POST", 
-            body: JSON.stringify(body), 
-            headers: {"Content-Type": "application/json"}, 
-            credentials: "same-origin"
-        })
-        .then(async (response: any) => {
-            if(response.status === 200) {
-                this.flowToken = await this._getBodyText(response);
-                console.log(this.flowToken)
-                success = true;
-                this.connected = true;
-            }
-            else {
-                //error
-                this.errorText = await this._getBodyText(response);
-                console.log("Logged In - " + this.errorText);
-                success = false;
-                this.connected = false;
-            }
-        });
-        return success;
+    macroTextChanged(newText: string) {
+        if(this.macroText !== newText) {
+            this.macroText = newText;
+            this.macroModified = true;
+            this.forceUpdate();
+        }
     }
 
+    saveMacro() {
+
+
+        this.macroModified = false;
+        this.forceUpdate();
+    }
+
+    saveMacroAs() {
+
+
+        this.macroModified = false;
+        this.forceUpdate();
+    }
+    
+
+    
+
     disconnect() {
-        this.connected = false;
         this.flowToken = "";
-        this.flowTenants = [];
+        this.flowTenants = {};
         this.flowTenant = undefined;
-        this.flowTypes = [];
+        this.flowTypes = {};
+        this.flowValues = {};
+        this.flowMacros = {};
         this.flowMacro = undefined;
 
         console.log("Logged Out");
         this.forceUpdate();
     }
 
-    async _getTenants() : Promise<boolean> {
-        let json: string = "";
-        this.flowTenants = {};
-        await fetch(this.flowBaseURL + this.flowGetTenantsEndpoint, 
-            { 
-                method: "GET", 
-                headers: {
-                    "Content-Type": "application/json", 
-                    Authorization: this.flowToken
-                }
-        })
-        .then(async (response: any) => {
-            json = await this._getBodyText(response); 
-        });
-        const getTenantsResponse = JSON.parse(json);
-        getTenantsResponse.tenants.forEach((tenant: tenant) => {
-            this.flowTenants[tenant.id] = tenant;
-        });
-        return true;
-    }
+    
 
-    async _selectTenant( tenantId: string) : Promise<boolean> {
-
-        let success: boolean = false;
-        await fetch(this.flowBaseURL + this.flowSwitchTenantEndpoint + "/" + tenantId, { 
-            method: "GET",  
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: this.flowToken
-            }
-        })
-        .then(async (response: any) => {
-            if(response.status === 200) {
-                this.flowTenant = this.flowTenants[tenantId];
-                console.log("Connected to tenant - " + (this.flowTenant as tenant).developerName);
-                success = true;
-            }
-            else {
-                //error
-                this.errorText = await this._getBodyText(response);
-                this.flowTenant = undefined;
-                console.log("Can't connect to tenant - " + this.errorText);
-                success = false;
-            }
-        });
-        return success;
-    }
-
-    async _loadTenant() : Promise<boolean> {
-        await this._loadTypes();
-        await this._loadValues();
-        await this._loadMacros();
-        return true;
-    }
-
-    async _loadTypes() : Promise<boolean> {
-        let success: boolean = false;
-        this.flowTypes = {};
-        await fetch(this.flowBaseURL + this.flowTypesEndpoint, { 
-            method: "GET",  
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: this.flowToken,
-                "ManyWhoTenant": (this.flowTenant as tenant).id
-            },
-            credentials: "same-origin",
-            
-        })
-        .then(async (response: any) => {
-            if(response.status === 200) {
-                const json = await this._getBodyText(response);
-                
-                JSON.parse(json).forEach((type : any) => {
-                    this.flowTypes[type.id] = type;
-                });;
-
-                console.log("Loaded Types");
-                success = true;
-            }
-            else {
-                //error
-                this.errorText = await this._getBodyText(response);
-                console.log("Can't load types - " + this.errorText);
-                success = false;
-            }
-        });
-        return success;
-    }
-
-    async _loadValues() : Promise<boolean> {
-        let success: boolean = false;
-        this.flowValues = {};
-        await fetch(this.flowBaseURL + this.flowValuesEndpoint, { 
-            method: "GET",  
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: this.flowToken,
-                "ManyWhoTenant": (this.flowTenant as tenant).id
-            },
-            credentials: "same-origin",
-            
-        })
-        .then(async (response: any) => {
-            if(response.status === 200) {
-                const json = await this._getBodyText(response);
-                
-                JSON.parse(json).forEach((value : any) => {
-                    this.flowValues[value.id] = value;
-                });;
-
-                console.log("Loaded Values");
-                success = true;
-            }
-            else {
-                //error
-                this.errorText = await this._getBodyText(response);
-                console.log("Can't load values - " + this.errorText);
-                success = false;
-            }
-        });
-        return success;
-    }
-
-    async _loadMacros() : Promise<boolean> {
-        let success: boolean = false;
-        this.flowMacros = {};
-        await fetch(this.flowBaseURL + this.flowMacrosEndpoint, { 
-            method: "GET",  
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: this.flowToken,
-                "ManyWhoTenant": (this.flowTenant as tenant).id
-            },
-            credentials: "same-origin",
-            
-        })
-        .then(async (response: any) => {
-            if(response.status === 200) {
-                const json = await this._getBodyText(response);
-                
-                JSON.parse(json).forEach((macro : macro) => {
-                    this.flowMacros[macro.id] = macro;
-                });;
-
-                console.log("Loaded Macros");
-                success = true;
-            }
-            else {
-                //error
-                this.errorText = await this._getBodyText(response);
-                console.log("Can't load macros - " + this.errorText);
-                success = false;
-            }
-        });
-        return success;
-    }
-
-    _saveMacro(macro: macro) {
-
-    }
-
-    async _getBodyText(response: any) : Promise<string> {
-        return response.text()
-        .then((text : string) => {
-            if(text.startsWith("\"")) {
-                text = text.substr(1);
-            }
-            if(text.endsWith("\"")) {
-                text = text.substr(0, text.length-1);
-            }
-            return text;
-        })
-    }
+    
 
     closeDialog() {
         this.dialogTitle = "";
@@ -403,7 +226,7 @@ class MacroEditor extends React.Component<any, any> {
 
         const menuItems: Array<JSX.Element> = [];
 
-        if(this.connected === false) {
+        if(this.flowToken.length===0) {
             menuItems.push(
                 <GlobalMenuItem 
                     key="Connect"
@@ -460,6 +283,20 @@ class MacroEditor extends React.Component<any, any> {
         
         if(this.flowTenant) {
 
+            let saveButton: any;
+            if(this.flowMacro) {
+                saveButton=(
+                    <GlobalMenuItem 
+                        key="save"
+                        type={eGlobalMenuItemType.icon}
+                        label="Save Macro"
+                        tooltip="Save Macro"
+                        highlight={this.macroModified}
+                        onClick={(e: any) => {this.saveMacro()}}
+                        icon="save"
+                    />
+                );
+            }
             bodyToolbar = (
                 <div 
                     className="me-body-toolbar"
@@ -472,6 +309,16 @@ class MacroEditor extends React.Component<any, any> {
                         tooltip="Select a Macro"
                         data={this.flowMacros}
                         onChange={(macroId: string) => {this.macroSelected(macroId)}}
+                    />
+                    {saveButton}
+                    <GlobalMenuItem 
+                        key="saveas"
+                        type={eGlobalMenuItemType.icon}
+                        label="Save Macro As"
+                        tooltip="Save Macro As"
+                        highlight={this.macroModified}
+                        onClick={(e: any) => {this.saveMacroAs()}}
+                        icon="star"
                     />
                 </div>
             );
@@ -489,7 +336,7 @@ class MacroEditor extends React.Component<any, any> {
                         <div className="ace-header">
                             {bodyToolbar}
                         </div>
-                        <ACEContainer flowMacro={this.flowMacro} parent={this} />
+                        <ACEContainer macroText={this.macroText} parent={this} />
                     </div>
                 </div>
                 

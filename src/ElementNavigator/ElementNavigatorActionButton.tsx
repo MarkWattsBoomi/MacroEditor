@@ -80,7 +80,7 @@ export class ElementNavigatorActionButton extends React.Component<any, any> {
 
             case "append":
                     direction="get";
-                    args="('{!" + parent + field + "}', newValue)";
+                    args="('{!" + parent + field + "}')";
                     break;
 
         }

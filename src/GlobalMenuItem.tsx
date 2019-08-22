@@ -20,22 +20,31 @@ export class GlobalMenuItem extends React.Component<any, any> {
     render() {
 
         let content: any;
-
+        let itemClass: string = "";
+        
         switch(this.props.type as eGlobalMenuItemType) {
             
             case eGlobalMenuItemType.icon: 
+                itemClass="me-gmi-icon ";
+                if(this.props.highlight && this.props.highlight===true) {
+                    itemClass += "me-gmi-icon-highlight "
+                }
                 content=(
                     <span 
-                        className={"me-gmi-icon glyphicon glyphicon-" + this.props.icon}
+                        className={itemClass + "glyphicon glyphicon-" + this.props.icon}
                     />
                 );
                 break;
 
             case eGlobalMenuItemType.link:
             case eGlobalMenuItemType.label:
+                itemClass="me-gmi-text ";
+                if(this.props.highlight && this.props.highlight===true) {
+                    itemClass += "me-gmi-text-highlight "
+                }
                 content=(
                     <span
-                        className="me-gmi-text"
+                        className={itemClass}
                     >
                         {this.props.label}
                     </span>

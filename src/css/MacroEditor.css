@@ -64,10 +64,18 @@ body {
   font-size: 18px;
 }
 
+.me-gmi-text-highlight {
+  color: #ff0101;
+}
+
 .me-gmi-icon {
   color: #fefefe;
   font-size: 22px;
   margin-top: -6px;
+}
+
+.me-gmi-icon-highlight {
+  color: #ff0101;
 }
 
 .me-body {
